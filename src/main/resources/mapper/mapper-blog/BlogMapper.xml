@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ink.tsg.blog.dao.BlogMapper">
+  <resultMap id="BaseResultMap" type="ink.tsg.blog.bean.Blog">
+    <id column="blog_id" jdbcType="INTEGER" property="blogId" />
+    <result column="blog_title" jdbcType="VARCHAR" property="blogTitle" />
+    <result column="blog_uptime" jdbcType="DATE" property="blogUptime" />
+    <result column="blog_tc_id" jdbcType="INTEGER" property="blogTcId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="ink.tsg.blog.bean.Blog">
+    <result column="blog_article" jdbcType="LONGVARCHAR" property="blogArticle" />
+  </resultMap>
+  <!-- 联合查询出三级分类 -->
+  <resultMap id="BaseResultMapWhitTC" type="ink.tsg.blog.bean.Blog">
+    <id column="blog_id" jdbcType="INTEGER" property="blogId" />
+    <result column="blog_title" jdbcType="VARCHAR" property="blogTitle" />
+    <result column="blog_uptime" jdbcType="DATE" property="blogUptime" />
+    <result column="blog_tc_id" jdbcType="INTEGER" property="blogTcId" />
+    <association property="thirdClass" javaType="ink.tsg.classification.third.bean.ThirdClass">
+    	<id column="tclassification_id" property="tclassificationId"/>
+    	<result column="tclassification_name" property="tclassificationName"/>
+    </association>
+  </resultMap>
+  
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    blog_id, blog_title, blog_uptime, blog_tc_id
+  </sql>
+  <!-- 联合查询三级分类 -->
+  <sql id="Base_Column_List_WhitTC">
+    b.blog_id, b.blog_title, b.blog_uptime, b.blog_tc_id,t.tclassification_id,t.tclassification_name
+  </sql>
+  <sql id="Blob_Column_List">
+    blog_article
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="ink.tsg.blog.bean.BlogExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_blog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="ink.tsg.blog.bean.BlogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_blog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <!-- 联合查询出三级分类 -->
+  <select id="selectByExampleWhitTC" parameterType="ink.tsg.blog.bean.BlogExample" resultMap="BaseResultMapWhitTC">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List_WhitTC" />
+    from tb_blog b
+    LEFT JOIN tb_thirdclass t ON b.blog_tc_id=t.tclassification_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_blog
+    where blog_id = #{blogId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_blog
+    where blog_id = #{blogId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="ink.tsg.blog.bean.BlogExample">
+    delete from tb_blog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="ink.tsg.blog.bean.Blog">
+    insert into tb_blog (blog_id, blog_title, blog_uptime, 
+      blog_tc_id, blog_article)
+    values (#{blogId,jdbcType=INTEGER}, #{blogTitle,jdbcType=VARCHAR}, #{blogUptime,jdbcType=DATE}, 
+      #{blogTcId,jdbcType=INTEGER}, #{blogArticle,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="ink.tsg.blog.bean.Blog">
+    insert into tb_blog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="blogId != null">
+        blog_id,
+      </if>
+      <if test="blogTitle != null">
+        blog_title,
+      </if>
+      <if test="blogUptime != null">
+        blog_uptime,
+      </if>
+      <if test="blogTcId != null">
+        blog_tc_id,
+      </if>
+      <if test="blogArticle != null">
+        blog_article,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="blogId != null">
+        #{blogId,jdbcType=INTEGER},
+      </if>
+      <if test="blogTitle != null">
+        #{blogTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="blogUptime != null">
+        #{blogUptime,jdbcType=DATE},
+      </if>
+      <if test="blogTcId != null">
+        #{blogTcId,jdbcType=INTEGER},
+      </if>
+      <if test="blogArticle != null">
+        #{blogArticle,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="ink.tsg.blog.bean.BlogExample" resultType="java.lang.Long">
+    select count(*) from tb_blog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_blog
+    <set>
+      <if test="record.blogId != null">
+        blog_id = #{record.blogId,jdbcType=INTEGER},
+      </if>
+      <if test="record.blogTitle != null">
+        blog_title = #{record.blogTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.blogUptime != null">
+        blog_uptime = #{record.blogUptime,jdbcType=DATE},
+      </if>
+      <if test="record.blogTcId != null">
+        blog_tc_id = #{record.blogTcId,jdbcType=INTEGER},
+      </if>
+      <if test="record.blogArticle != null">
+        blog_article = #{record.blogArticle,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update tb_blog
+    set blog_id = #{record.blogId,jdbcType=INTEGER},
+      blog_title = #{record.blogTitle,jdbcType=VARCHAR},
+      blog_uptime = #{record.blogUptime,jdbcType=DATE},
+      blog_tc_id = #{record.blogTcId,jdbcType=INTEGER},
+      blog_article = #{record.blogArticle,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_blog
+    set blog_id = #{record.blogId,jdbcType=INTEGER},
+      blog_title = #{record.blogTitle,jdbcType=VARCHAR},
+      blog_uptime = #{record.blogUptime,jdbcType=DATE},
+      blog_tc_id = #{record.blogTcId,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="ink.tsg.blog.bean.Blog">
+    update tb_blog
+    <set>
+      <if test="blogTitle != null">
+        blog_title = #{blogTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="blogUptime != null">
+        blog_uptime = #{blogUptime,jdbcType=DATE},
+      </if>
+      <if test="blogTcId != null">
+        blog_tc_id = #{blogTcId,jdbcType=INTEGER},
+      </if>
+      <if test="blogArticle != null">
+        blog_article = #{blogArticle,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where blog_id = #{blogId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="ink.tsg.blog.bean.Blog">
+    update tb_blog
+    set blog_title = #{blogTitle,jdbcType=VARCHAR},
+      blog_uptime = #{blogUptime,jdbcType=DATE},
+      blog_tc_id = #{blogTcId,jdbcType=INTEGER},
+      blog_article = #{blogArticle,jdbcType=LONGVARCHAR}
+    where blog_id = #{blogId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="ink.tsg.blog.bean.Blog">
+    update tb_blog
+    set blog_title = #{blogTitle,jdbcType=VARCHAR},
+      blog_uptime = #{blogUptime,jdbcType=DATE},
+      blog_tc_id = #{blogTcId,jdbcType=INTEGER}
+    where blog_id = #{blogId,jdbcType=INTEGER}
+  </update>
+</mapper>

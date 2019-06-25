@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ink.tsg.classification.second.dao.SecondClassMapper">
+  <resultMap id="BaseResultMap" type="ink.tsg.classification.second.bean.SecondClass">
+    <id column="sclassification_id" jdbcType="INTEGER" property="sclassificationId" />
+    <result column="sclassification_name" jdbcType="VARCHAR" property="sclassificationName" />
+    <result column="sc_fc_id" jdbcType="INTEGER" property="scFcId" />
+  </resultMap>
+  
+  <!-- 联合查询出一级分类 -->
+  <resultMap id="BaseResultMapWhitFC" type="ink.tsg.classification.second.bean.SecondClass">
+    <id column="sclassification_id" jdbcType="INTEGER" property="sclassificationId" />
+    <result column="sclassification_name" jdbcType="VARCHAR" property="sclassificationName" />
+    <result column="sc_fc_id" jdbcType="INTEGER" property="scFcId" />
+    <association property="firstClass" javaType="ink.tsg.classification.first.bean.FirstClass">
+    	<id column="fclassification_id" property="fclassificationId"/>
+    	<result column="fclassification_name" property="fclassificationName"/>
+    </association>
+  </resultMap>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    sclassification_id, sclassification_name, sc_fc_id
+  </sql>
+  
+  <!-- 联合查询出一级分类 -->
+  <sql id="Base_Column_List_WhitFC">
+    s.sclassification_id, s.sclassification_name, s.sc_fc_id,f.fclassification_id,f.fclassification_name
+  </sql>
+  <select id="selectByExampleWhitFC" parameterType="ink.tsg.classification.second.bean.SecondClassExample" resultMap="BaseResultMapWhitFC">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List_WhitFC" />
+    from tb_secondclass s
+    LEFT JOIN tb_firstclass f ON s.sc_fc_id=f.fclassification_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  
+  <select id="selectByExample" parameterType="ink.tsg.classification.second.bean.SecondClassExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_secondclass
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_secondclass
+    where sclassification_id = #{sclassificationId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_secondclass
+    where sclassification_id = #{sclassificationId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="ink.tsg.classification.second.bean.SecondClassExample">
+    delete from tb_secondclass
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="ink.tsg.classification.second.bean.SecondClass">
+    insert into tb_secondclass (sclassification_id, sclassification_name, 
+      sc_fc_id)
+    values (#{sclassificationId,jdbcType=INTEGER}, #{sclassificationName,jdbcType=VARCHAR}, 
+      #{scFcId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="ink.tsg.classification.second.bean.SecondClass">
+    insert into tb_secondclass
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="sclassificationId != null">
+        sclassification_id,
+      </if>
+      <if test="sclassificationName != null">
+        sclassification_name,
+      </if>
+      <if test="scFcId != null">
+        sc_fc_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="sclassificationId != null">
+        #{sclassificationId,jdbcType=INTEGER},
+      </if>
+      <if test="sclassificationName != null">
+        #{sclassificationName,jdbcType=VARCHAR},
+      </if>
+      <if test="scFcId != null">
+        #{scFcId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="ink.tsg.classification.second.bean.SecondClassExample" resultType="java.lang.Long">
+    select count(*) from tb_secondclass
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_secondclass
+    <set>
+      <if test="record.sclassificationId != null">
+        sclassification_id = #{record.sclassificationId,jdbcType=INTEGER},
+      </if>
+      <if test="record.sclassificationName != null">
+        sclassification_name = #{record.sclassificationName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scFcId != null">
+        sc_fc_id = #{record.scFcId,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_secondclass
+    set sclassification_id = #{record.sclassificationId,jdbcType=INTEGER},
+      sclassification_name = #{record.sclassificationName,jdbcType=VARCHAR},
+      sc_fc_id = #{record.scFcId,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="ink.tsg.classification.second.bean.SecondClass">
+    update tb_secondclass
+    <set>
+      <if test="sclassificationName != null">
+        sclassification_name = #{sclassificationName,jdbcType=VARCHAR},
+      </if>
+      <if test="scFcId != null">
+        sc_fc_id = #{scFcId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where sclassification_id = #{sclassificationId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="ink.tsg.classification.second.bean.SecondClass">
+    update tb_secondclass
+    set sclassification_name = #{sclassificationName,jdbcType=VARCHAR},
+      sc_fc_id = #{scFcId,jdbcType=INTEGER}
+    where sclassification_id = #{sclassificationId,jdbcType=INTEGER}
+  </update>
+</mapper>

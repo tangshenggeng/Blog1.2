@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ink.tsg.cst.dao.CustomerMapper">
+  <resultMap id="BaseResultMap" type="ink.tsg.cst.bean.Customer">
+    <id column="cst_id" jdbcType="INTEGER" property="cstId" />
+    <result column="cst_con" jdbcType="VARCHAR" property="cstCon" />
+    <result column="cst_scn" jdbcType="VARCHAR" property="cstScn" />
+    <result column="cst_num" jdbcType="VARCHAR" property="cstNum" />
+    <result column="cst_pwd" jdbcType="VARCHAR" property="cstPwd" />
+    <result column="cst_curr" jdbcType="VARCHAR" property="cstCurr" />
+    <result column="cst_pla_id" jdbcType="INTEGER" property="cstPlaId"/>
+    <result column="up_time" jdbcType="DATE" property="upTime" />
+    <result column="del" jdbcType="BIT" property="del" />
+  </resultMap>
+  <resultMap id="WithPlaResultMap" type="ink.tsg.cst.bean.Customer">
+  	<id column="cst_id" jdbcType="INTEGER" property="cstId" />
+    <result column="cst_con" jdbcType="VARCHAR" property="cstCon" />
+    <result column="cst_scn" jdbcType="VARCHAR" property="cstScn" />
+    <result column="cst_num" jdbcType="VARCHAR" property="cstNum" />
+    <result column="cst_pwd" jdbcType="VARCHAR" property="cstPwd" />
+    <result column="cst_curr" jdbcType="VARCHAR" property="cstCurr" />
+    <result column="cst_pla_id" jdbcType="INTEGER" property="cstPlaId" />
+    <result column="up_time" jdbcType="DATE" property="upTime" />
+    <result column="del" jdbcType="BIT" property="del" />
+    <!--指定联合查询部门字段的封装  -->
+  	<association property="platform" javaType="ink.tsg.cst.bean.Platform">
+  		<id column="pla_id" property="plaId"/>
+  		<result column="pla_name" property="plaName"/>
+  	</association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    cst_id, cst_con, cst_scn, cst_num, cst_pwd, cst_curr, cst_pla_id, up_time, del
+  </sql>
+  <sql id="WhitPla_Column_List">
+    c.cst_id, c.cst_con, c.cst_scn, c.cst_num, c.cst_pwd, c.cst_curr, c.cst_pla_id, c.up_time, c.del,p.pla_id,p.pla_name
+  </sql>
+  <!-- 下面两个是自定义的带平台信息的 -->
+  <select id="selectByExampleWhitPla" parameterType="ink.tsg.cst.bean.CustomerExample" resultMap="WithPlaResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="WhitPla_Column_List" />
+    from tb_cst c
+    LEFT JOIN tb_pla p ON c.cst_pla_id=p.pla_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKeyWhitPla" parameterType="java.lang.Integer" resultMap="WithPlaResultMap">
+    select 
+    <include refid="WhitPla_Column_List" />
+    from tb_cst c
+    LEFT JOIN tb_pla p ON c.cst_pla_id=p.pla_id
+    where cst_id = #{cstId,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByExample" parameterType="ink.tsg.cst.bean.CustomerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_cst
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_cst
+    where cst_id = #{cstId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_cst
+    where cst_id = #{cstId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="ink.tsg.cst.bean.CustomerExample">
+    delete from tb_cst
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="ink.tsg.cst.bean.Customer">
+    insert into tb_cst (cst_id, cst_con, cst_scn, 
+      cst_num, cst_pwd, cst_curr, 
+      cst_pla_id, up_time, del)
+    values (#{cstId,jdbcType=INTEGER}, #{cstCon,jdbcType=VARCHAR}, #{cstScn,jdbcType=VARCHAR}, 
+      #{cstNum,jdbcType=VARCHAR}, #{cstPwd,jdbcType=VARCHAR}, #{cstCurr,jdbcType=VARCHAR}, 
+      #{cstPlaId,jdbcType=INTEGER}, #{upTime,jdbcType=DATE}, #{del,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="ink.tsg.cst.bean.Customer">
+    insert into tb_cst
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cstId != null">
+        cst_id,
+      </if>
+      <if test="cstCon != null">
+        cst_con,
+      </if>
+      <if test="cstScn != null">
+        cst_scn,
+      </if>
+      <if test="cstNum != null">
+        cst_num,
+      </if>
+      <if test="cstPwd != null">
+        cst_pwd,
+      </if>
+      <if test="cstCurr != null">
+        cst_curr,
+      </if>
+      <if test="cstPlaId != null">
+        cst_pla_id,
+      </if>
+      <if test="upTime != null">
+        up_time,
+      </if>
+      <if test="del != null">
+        del,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cstId != null">
+        #{cstId,jdbcType=INTEGER},
+      </if>
+      <if test="cstCon != null">
+        #{cstCon,jdbcType=VARCHAR},
+      </if>
+      <if test="cstScn != null">
+        #{cstScn,jdbcType=VARCHAR},
+      </if>
+      <if test="cstNum != null">
+        #{cstNum,jdbcType=VARCHAR},
+      </if>
+      <if test="cstPwd != null">
+        #{cstPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="cstCurr != null">
+        #{cstCurr,jdbcType=VARCHAR},
+      </if>
+      <if test="cstPlaId != null">
+        #{cstPlaId,jdbcType=INTEGER},
+      </if>
+      <if test="upTime != null">
+        #{upTime,jdbcType=DATE},
+      </if>
+      <if test="del != null">
+        #{del,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="ink.tsg.cst.bean.CustomerExample" resultType="java.lang.Long">
+    select count(*) from tb_cst
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_cst
+    <set>
+      <if test="record.cstId != null">
+        cst_id = #{record.cstId,jdbcType=INTEGER},
+      </if>
+      <if test="record.cstCon != null">
+        cst_con = #{record.cstCon,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cstScn != null">
+        cst_scn = #{record.cstScn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cstNum != null">
+        cst_num = #{record.cstNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cstPwd != null">
+        cst_pwd = #{record.cstPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cstCurr != null">
+        cst_curr = #{record.cstCurr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cstPlaId != null">
+        cst_pla_id = #{record.cstPlaId,jdbcType=INTEGER},
+      </if>
+      <if test="record.upTime != null">
+        up_time = #{record.upTime,jdbcType=DATE},
+      </if>
+      <if test="record.del != null">
+        del = #{record.del,jdbcType=BIT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_cst
+    set cst_id = #{record.cstId,jdbcType=INTEGER},
+      cst_con = #{record.cstCon,jdbcType=VARCHAR},
+      cst_scn = #{record.cstScn,jdbcType=VARCHAR},
+      cst_num = #{record.cstNum,jdbcType=VARCHAR},
+      cst_pwd = #{record.cstPwd,jdbcType=VARCHAR},
+      cst_curr = #{record.cstCurr,jdbcType=VARCHAR},
+      cst_pla_id = #{record.cstPlaId,jdbcType=INTEGER},
+      up_time = #{record.upTime,jdbcType=DATE},
+      del = #{record.del,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="ink.tsg.cst.bean.Customer">
+    update tb_cst
+    <set>
+      <if test="cstCon != null">
+        cst_con = #{cstCon,jdbcType=VARCHAR},
+      </if>
+      <if test="cstScn != null">
+        cst_scn = #{cstScn,jdbcType=VARCHAR},
+      </if>
+      <if test="cstNum != null">
+        cst_num = #{cstNum,jdbcType=VARCHAR},
+      </if>
+      <if test="cstPwd != null">
+        cst_pwd = #{cstPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="cstCurr != null">
+        cst_curr = #{cstCurr,jdbcType=VARCHAR},
+      </if>
+      <if test="cstPlaId != null">
+        cst_pla_id = #{cstPlaId,jdbcType=INTEGER},
+      </if>
+      <if test="upTime != null">
+        up_time = #{upTime,jdbcType=DATE},
+      </if>
+      <if test="del != null">
+        del = #{del,jdbcType=BIT},
+      </if>
+    </set>
+    where cst_id = #{cstId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="ink.tsg.cst.bean.Customer">
+    update tb_cst
+    set cst_con = #{cstCon,jdbcType=VARCHAR},
+      cst_scn = #{cstScn,jdbcType=VARCHAR},
+      cst_num = #{cstNum,jdbcType=VARCHAR},
+      cst_pwd = #{cstPwd,jdbcType=VARCHAR},
+      cst_curr = #{cstCurr,jdbcType=VARCHAR},
+      cst_pla_id = #{cstPlaId,jdbcType=INTEGER},
+      up_time = #{upTime,jdbcType=DATE},
+      del = #{del,jdbcType=BIT}
+    where cst_id = #{cstId,jdbcType=INTEGER}
+  </update>
+</mapper>
